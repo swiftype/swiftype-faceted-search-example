@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
+    <script type="text/javascript" src="jquery.swiftype.autocomplete.js"></script>
+    <script type='text/javascript' src='jquery.ba-hashchange.min.js'></script>
+    <script type="text/javascript" src="jquery.swiftype.search.js"></script>
+    <link type="text/css" rel="stylesheet" href="autocomplete.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="search.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="custom.css" media="all" />
+  </head>
+  <body>
+    <h1>Faceted Filter Ecommerce Store</h1>
+    <form>
+      Search products: <input type='text' id='st-search-input' class='st-search-input' />
+    </form>
+    <div id="menu">
+      <h3>Sorted by</h3>
+      <a href="#" class="sort active" ><label>Relevance</label></a>
+      <a href="#" class="sort" data-field="price" data-direction="asc"><label>Cheapest</label></a>
+      <a href="#" class="sort" data-field="published_on" data-direction="desc"><label>Date Added</label></a>
+
+      <div id="facets">
+        <div class="st-custom-facets">
+          <h3>Prices</h3>
+          <input type="checkbox" class="price-filter" name="price" data-type="range" data-from="0" data-to="5" id="under5">
+          <label for="under5">Under $5</label><br />
+          <input type="checkbox" class="price-filter" classname="price" data-type="range" data-from="0" data-to="10" id="under10">
+          <label for="under10">Under $10</label><br />
+          <input type="checkbox" class="price-filter" classname="price" data-type="range" data-from="0" data-to="25" id="under25">
+          <label for="under25">Under $25</label><br />
+          <input type="checkbox" class="price-filter" classname="price" data-type="range" data-from="50" data-to="*" id="over50">
+          <label for="over50">Over $50</label>
+        </div>
+        <div class="st-dynamic-facets">
+        </div>
+      </div>
+    </div>
+
+    <div id="results">
+      <div id="st-results-container">
+        Results go here
+      </div>
+    </div>
+    <script type="text/javascript">
+      var searchConfig = {
+        facets: {},
+        sort: {
+          field: undefined,
+          direction: undefined
+        },
+        price: {
+          from: undefined,
+          to: undefined
+        }
+      };
+
+      var resultTemplate = Hogan.compile([
+        "<div>",
+          "<h2>{{title}}</h2>",
+          "<div>Quantity: {{quantity}}</div>",
+          "<div>Category: {{category}}</div>",
+          "<div>Price: ${{price}}</div>",
+          "<div>Tags: {{tags}}</div>",
+          "<div>Published: {{published_on}}</div>",
+        "</div>"
+      ].join('') );
+
+      var customRenderFunction = function(document_type, item) {
+        var
+          date = new Date(item['published_on']),
+          data = {
+            title: item['title'],
+            quantity: item['quantity'],
+            price: item['price'],
+            category: item['category'],
+            tags: item['tags'],
+            published_on: [date.getMonth(), date.getDate(), date.getFullYear()].join('/')
+          };
+        return resultTemplate.render(data);
+      };
+
+      var $facetContainer = $('.st-dynamic-facets');
+
+      var reloadResults = function() {
+        $(window).hashchange();
+      }
+
+      var bindControls = function(data) {
+        var
+          resultInfo = data['info'],
+          facets = '';
+
+        $.each(resultInfo, function(documentType, typeInfo){
+          $.each(typeInfo.facets, function(field, facetCounts) {
+            facets += ['<div class="facet"><h3>', field, '</h3></div>'].join('')
+            $.each(facetCounts, function(label, count) {
+              var
+                status = "",
+                id = encodeURIComponent(label).toLowerCase();
+              if (window.searchConfig.facets[field] && window.searchConfig.facets[field].indexOf(label) > -1) {
+                status = ' checked="checked"'
+              }
+
+              facets += '<input type="checkbox"' + status + ' name="' + field + '" value="' + label + '" id="' + id + '"><label for="' + id + '">' + label + ' (' + count + ')</label><br/>';
+            });
+            facets += '<a href="#" class="clear-selection" data-name="' + field + '"><b>Clear all</b></a>'
+          });
+          $facetContainer.html(facets);
+        });
+      };
+
+      var readSortField = function() {
+        return { products: window.searchConfig.sort.field };
+      };
+
+      var readSortDirection = function() {
+        return { products: window.searchConfig.sort.direction };
+      };
+
+      $('.sort').on('click', function(e){
+        e.preventDefault();
+        // Visually change the selected sorting order
+        $('.sort').removeClass('active');
+        $(this).addClass('active');
+        // Update sorting settings
+        window.searchConfig.sort.field = $(this).data('field');
+        window.searchConfig.sort.direction = $(this).data('direction');
+
+        reloadResults();
+      });
+
+      $facetContainer.on('click', 'input', function(e) {
+        window.searchConfig.facets = {}; // Set the hash to empty
+        $('.st-dynamic-facets input[type="checkbox"]').each(function(idx, obj) {
+          var
+            $checkbox = $(obj),
+            facet = $checkbox.attr('name');
+          if(!window.searchConfig.facets[facet]) { // if facets are null or undefined, put empty array for the category
+            window.searchConfig.facets[facet] = [];
+          }
+          if($checkbox.attr('checked')) { // add ids to array for the category
+            window.searchConfig.facets[facet].push($checkbox.attr('value'));
+          }
+        })
+
+        reloadResults();
+      });
+
+      $facetContainer.on('click', 'a.clear-selection', function(e) {
+        e.preventDefault();
+        var name = $(this).data('name');
+        $('input[name=' + name + ']').attr('checked', false);
+        window.searchConfig.facets[name] = [];
+
+        reloadResults();
+      });
+
+      $('.price-filter').on('click', function(e){
+        if ($(this).attr('checked')) {
+          // Visually update the checkboxes
+          $('.price-filter').attr('checked', false);
+          $(this).attr('checked', true);
+          // Update the search parameters
+          window.searchConfig.price.from = $(this).data('from');
+          window.searchConfig.price.to = $(this).data('to');
+        } else {
+          window.searchConfig.price.from = undefined;
+          window.searchConfig.price.to = undefined;
+        }
+        reloadResults();
+      })
+
+      var readFilters = function() {
+        return {
+          products: {
+            category: window.searchConfig.facets['category'],
+            tags: window.searchConfig.facets['tags'],
+            price: {
+              type: 'range',
+              from: window.searchConfig.price.from,
+              to: window.searchConfig.price.to
+            }
+          }
+        }
+      }
+
+      Swiftype.root_url = 'http://localhost:3000'
+
+      $('#st-search-input').swiftypeSearch({
+        resultContainingElement: '#st-results-container',
+        engineKey: 'ucm7SGxzDbVcYw8YsMuM',
+        renderFunction: customRenderFunction,
+        sortField: readSortField, // what field to sort on
+        sortDirection: readSortDirection, // what direction to sort
+        facets: { products: ['category', 'tags'] }, // default facet fields to return count
+        filters: readFilters,
+        postRenderFunction: bindControls // command to process the returned results
+      });
+
+      $('#st-search-input').swiftype({
+        engineKey: 'ucm7SGxzDbVcYw8YsMuM'
+      });
+    </script>
+  </body>
+</html>

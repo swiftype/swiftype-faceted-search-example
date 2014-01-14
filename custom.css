@@ -1,0 +1,19 @@
+#menu {
+  width: 200px;
+  float: left;
+}
+
+#results {
+  float: left;
+}
+
+a.sort {
+  text-decoration: none;
+  display: block;
+}
+
+a.sort.active{
+  text-decoration: underline;
+}
+
+
