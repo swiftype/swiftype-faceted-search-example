@@ -194,11 +194,11 @@
         resultContainingElement: '#st-results-container',
         engineKey: 'ucm7SGxzDbVcYw8YsMuM',
         renderFunction: customRenderFunction,
-        sortField: readSortField, // what field to sort on
-        sortDirection: readSortDirection, // what direction to sort
-        facets: { products: ['category', 'tags'] }, // default facet fields to return count
+        sortField: readSortField,
+        sortDirection: readSortDirection,
+        facets: { products: ['category', 'tags'] },
         filters: readFilters,
-        postRenderFunction: bindControls // command to process the returned results
+        postRenderFunction: bindControls
       });
 
       $('#st-search-input').swiftype({
