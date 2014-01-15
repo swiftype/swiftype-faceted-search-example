@@ -1,10 +1,14 @@
 * { margin: 0; padding: 0; }
 
 body {
-  position: relative; width: 960px; margin: 0 auto;
   font-weight: 300; font-family:
     "Avenir", "Helvetica", "Arial", "sans-serif";
   color: #5e5b55; background: #f2ece2;
+}
+
+div.container {
+  position: relative;
+  width: 960px; margin: 0 auto;
 }
 
 h1 {
@@ -39,6 +43,11 @@ form input {
     "Avenir", "Helvetica", "Arial", "sans-serif";
 }
 
+
+
+/* Auto-complete menu*/
+
+.autocomplete { margin-top: 8px !important; }
 
 
 /* Search result listing */
