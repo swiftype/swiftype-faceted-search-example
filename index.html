@@ -13,7 +13,7 @@
     <link type="text/css" rel="stylesheet" href="custom.css" media="all" />
   </head>
   <body>
-  
+
     <div class="container">
 
     <h1>Swiftype Faceted Search E-Commerce Store Example</h1>
@@ -146,10 +146,10 @@
           var
             $checkbox = $(obj),
             facet = $checkbox.attr('name');
-          if(!window.searchConfig.facets[facet]) { // if facets are null or undefined, put empty array for the category
+          if(!window.searchConfig.facets[facet]) {
             window.searchConfig.facets[facet] = [];
           }
-          if($checkbox.attr('checked')) { // add ids to array for the category
+          if($checkbox.attr('checked')) {
             window.searchConfig.facets[facet].push($checkbox.attr('value'));
           }
         })
@@ -195,11 +195,9 @@
         }
       }
 
-      Swiftype.root_url = 'http://localhost:3000'
-
       $('#st-search-input').swiftypeSearch({
         resultContainingElement: '#st-results-container',
-        engineKey: 'ucm7SGxzDbVcYw8YsMuM',
+        engineKey: 'z2XtZXzEvLqzY7zpC9c6',
         renderFunction: customRenderFunction,
         sortField: readSortField,
         sortDirection: readSortDirection,
@@ -209,7 +207,7 @@
       });
 
       $('#st-search-input').swiftype({
-        engineKey: 'ucm7SGxzDbVcYw8YsMuM'
+        engineKey: 'z2XtZXzEvLqzY7zpC9c6'
       });
     </script>
   </body>
