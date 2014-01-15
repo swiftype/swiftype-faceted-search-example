@@ -2,6 +2,7 @@
 
 <html>
   <head>
+    <title>Swiftype Faceted Search E-Commerce Store Example</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
     <script type="text/javascript" src="jquery.swiftype.autocomplete.js"></script>
@@ -12,14 +13,14 @@
     <link type="text/css" rel="stylesheet" href="custom.css" media="all" />
   </head>
   <body>
-    <h1>Faceted Filter Ecommerce Store</h1>
+    <h1>Swiftype Faceted Search E-Commerce Store Example</h1>
     <form>
       Search products: <input type='text' id='st-search-input' class='st-search-input' />
     </form>
     <div id="menu">
       <h3>Sorted by</h3>
       <a href="#" class="sort active" ><label>Relevance</label></a>
-      <a href="#" class="sort" data-field="price" data-direction="asc"><label>Cheapest</label></a>
+      <a href="#" class="sort" data-field="price" data-direction="asc"><label>Price</label></a>
       <a href="#" class="sort" data-field="published_on" data-direction="desc"><label>Date Added</label></a>
 
       <div id="facets">
@@ -86,7 +87,7 @@
 
       var reloadResults = function() {
         $(window).hashchange();
-      }
+      };
 
       var bindControls = function(data) {
         var
