@@ -15,7 +15,8 @@
   <body>
     <h1>Swiftype Faceted Search E-Commerce Store Example</h1>
     <form>
-      Search products: <input type='text' id='st-search-input' class='st-search-input' />
+      <label>Search products</label>
+      <input type='text' id='st-search-input' class='st-search-input' />
     </form>
     <div id="menu">
       <h3>Sorted by</h3>
@@ -42,7 +43,7 @@
 
     <div id="results">
       <div id="st-results-container">
-        Results go here
+        <span id="no-results">No products found</span>
       </div>
     </div>
     <script type="text/javascript">
@@ -59,7 +60,7 @@
       };
 
       var resultTemplate = Hogan.compile([
-        "<div>",
+        "<div class='product'>",
           "<h2>{{title}}</h2>",
           "<div>Quantity: {{quantity}}</div>",
           "<div>Category: {{category}}</div>",
@@ -105,9 +106,9 @@
                 status = ' checked="checked"'
               }
 
-              facets += '<input type="checkbox"' + status + ' name="' + field + '" value="' + label + '" id="' + id + '"><label for="' + id + '">' + label + ' (' + count + ')</label><br/>';
+              facets += '<input type="checkbox"' + status + ' name="' + field + '" value="' + label + '" id="' + id + '"> <label for="' + id + '">' + label + ' (' + count + ')</label><br/>';
             });
-            facets += '<a href="#" class="clear-selection" data-name="' + field + '"><b>Clear all</b></a>'
+            facets += '<a href="#" class="clear-selection" data-name="' + field + '">Clear all</a>'
           });
           $facetContainer.html(facets);
         });
