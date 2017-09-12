@@ -91,7 +91,7 @@
       };
 
       var styles = config.dropdownStylesFunction($this);
-      var $swiftypeWidget = $('<div class="swiftype-widget" />');
+      var $swiftypeWidget = $('<div class="' + config.widgetContainerClass + '" />');
       var $listContainer = $('<div />').addClass(config.suggestionListClass).appendTo($swiftypeWidget).css(styles).hide();
       $swiftypeWidget.appendTo(config.autocompleteContainingElement);
       var $list = $('<' + config.suggestionListType + ' />').appendTo($listContainer);
@@ -210,6 +210,10 @@
         $listContainer.css(config.dropdownStylesFunction($this));
       };
 
+      $(window).resize(function (event) {
+        $this.styleDropdown();
+      });
+
       $this.keydown(function (event) {
         $this.styleDropdown();
         // enter = 13; up = 38; down = 40; esc = 27
@@ -307,6 +311,7 @@
     params['sort_field'] = handleFunctionParam(config.sortField);
     params['sort_direction'] = handleFunctionParam(config.sortDirection);
     params['per_page'] = config.resultLimit;
+    params['highlight_fields'] = handleFunctionParam(config.highlightFields);
 
     var endpoint = Swiftype.root_url + '/api/v1/public/engines/suggest.json';
     $this.currentRequest = $.ajax({
@@ -314,7 +319,7 @@
       dataType: 'jsonp',
       url: endpoint,
       data: params
-    }).success(function(data) {
+    }).done(function(data) {
       var norm = normalize(term);
       if (data.record_count > 0) {
         $this.cache.put(norm, data.records);
@@ -425,13 +430,13 @@
     return undefined;
   };
 
-  // simple client-side LRU Cache, based on https://github.com/rsms/js-lru
+	// simple client-side LRU Cache, based on https://github.com/rsms/js-lru
 
-  function LRUCache(limit) {
-    this.size = 0;
-    this.limit = limit;
-    this._keymap = {};
-  }
+	function LRUCache(limit) {
+	  this.size = 0;
+	  this.limit = limit;
+	  this._keymap = {};
+	}
 
   LRUCache.prototype.put = function (key, value) {
     var entry = {
@@ -536,6 +541,7 @@
     sortField: undefined,
     sortDirection: undefined,
     fetchFields: undefined,
+    highlightFields: undefined,
     noResultsClass: 'noResults',
     noResultsMessage: undefined,
     onComplete: defaultOnComplete,
@@ -549,7 +555,8 @@
     setWidth: true,
     typingDelay: 80,
     disableAutocomplete: false,
-    autocompleteContainingElement: 'body'
+    autocompleteContainingElement: 'body',
+    widgetContainerClass: 'swiftype-widget'
   };
 
 })(jQuery);

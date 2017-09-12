@@ -3,8 +3,8 @@
 <html>
   <head>
     <title>Swiftype Faceted Search E-Commerce Store Example</title>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://twitter.github.com/hogan.js/builds/3.0.1/hogan-3.0.1.js"></script>
     <script type="text/javascript" src="jquery.swiftype.autocomplete.js"></script>
     <script type='text/javascript' src='jquery.ba-hashchange.min.js'></script>
     <script type="text/javascript" src="jquery.swiftype.search.js"></script>
@@ -109,7 +109,7 @@
                 status = "",
                 id = encodeURIComponent(label).toLowerCase();
               if (window.searchConfig.facets[field] && window.searchConfig.facets[field].indexOf(label) > -1) {
-                status = ' checked="checked"'
+                status = 'checked="checked"'
               }
 
               facets += '<input type="checkbox"' + status + ' name="' + field + '" value="' + label + '" id="' + id + '"> <label for="' + id + '">' + label + ' (' + count + ')</label><br/>';
@@ -145,12 +145,12 @@
         $('.st-dynamic-facets input[type="checkbox"]').each(function(idx, obj) {
           var
             $checkbox = $(obj),
-            facet = $checkbox.attr('name');
+            facet = $checkbox.prop('name');
           if(!window.searchConfig.facets[facet]) {
             window.searchConfig.facets[facet] = [];
           }
-          if($checkbox.attr('checked')) {
-            window.searchConfig.facets[facet].push($checkbox.attr('value'));
+          if($checkbox.prop('checked')) {
+            window.searchConfig.facets[facet].push($checkbox.prop('value'));
           }
         })
 
@@ -160,17 +160,17 @@
       $facetContainer.on('click', 'a.clear-selection', function(e) {
         e.preventDefault();
         var name = $(this).data('name');
-        $('input[name=' + name + ']').attr('checked', false);
+        $('input[name=' + name + ']').prop('checked', false);
         window.searchConfig.facets[name] = [];
 
         reloadResults();
       });
 
       $('.price-filter').on('click', function(e){
-        if ($(this).attr('checked')) {
+        if ($(this).prop('checked')) {
           // Visually update the checkboxes
-          $('.price-filter').attr('checked', false);
-          $(this).attr('checked', true);
+          $('.price-filter').prop('checked', false);
+          $(this).prop('checked', true);
           // Update the search parameters
           window.searchConfig.price.from = $(this).data('from');
           window.searchConfig.price.to = $(this).data('to');
