@@ -56,7 +56,7 @@
           var $el = $(this);
           e.preventDefault();
           Swiftype.pingSearchResultClick(config.engineKey, data['id'], function() {
-            window.location = $el.attr('href');
+            config.onComplete($el);
           });
         };
       };
@@ -95,7 +95,6 @@
           params['q'] = query;
           params['engine_key'] = config.engineKey;
           params['page'] = options.page;
-          params['per_page'] = config.perPage;
 
           function handleFunctionParam(field) {
             if (field !== undefined) {
@@ -108,6 +107,7 @@
             return undefined;
           }
 
+          params['per_page'] = handleFunctionParam(config.perPage);
           params['search_fields'] = handleFunctionParam(config.searchFields);
           params['fetch_fields'] = handleFunctionParam(config.fetchFields);
           params['facets'] = handleFunctionParam(config.facets);
@@ -116,8 +116,16 @@
           params['functional_boosts'] = handleFunctionParam(config.functionalBoosts);
           params['sort_field'] = handleFunctionParam(config.sortField);
           params['sort_direction'] = handleFunctionParam(config.sortDirection);
+          params['spelling'] = handleFunctionParam(config.spelling);
+          params['highlight_fields'] = handleFunctionParam(config.highlightFields);
 
-          $.getJSON(Swiftype.root_url + "/api/v1/public/engines/search.json?callback=?", params).success(renderSearchResults);
+          $.ajax({
+            dataType: "json",
+            url: Swiftype.root_url + "/api/v1/public/engines/search.json?callback=?",
+            data: params,
+            xhrFields: { withCredentials: true },
+            success: renderSearchResults
+          });
         };
 
       $(window).hashchange(function () {
@@ -150,6 +158,12 @@
         setSearchHash($.hashParams().stq, $this.data('page'));
       });
 
+      $(document).on('click', '[data-hash][data-spelling-suggestion]', function (e) {
+        e.preventDefault();
+        var $this = $(this);
+        setSearchHash($this.data('spelling-suggestion'), 1);
+      });
+
       var renderSearchResults = function (data) {
         if (typeof config.preRenderFunction === 'function') {
           config.preRenderFunction.call($this, data);
@@ -175,7 +189,8 @@
   };
 
   var renderPagination = function (ctx, resultInfo) {
-    var maxPagesType, maxPages = -1;
+    var maxPagesType, maxPages = -1,
+      config = ctx.config;
     $.each(resultInfo, function(documentType, typeInfo) {
       if (typeInfo.num_pages > maxPages) {
         maxPagesType = documentType;
@@ -184,23 +199,10 @@
     });
     var currentPage = resultInfo[maxPagesType].current_page,
       totalPages = resultInfo[maxPagesType].num_pages;
-    $(renderPaginationForType(maxPagesType, currentPage, totalPages)).appendTo(ctx.resultContainer);
+
+    $(config.renderPaginationForType(maxPagesType, currentPage, totalPages)).appendTo(ctx.resultContainer);
   };
 
-  var renderPaginationForType = function (type, currentPage, totalPages) {
-      var pages = '<div class="st-page">',
-        previousPage, nextPage;
-      if (currentPage != 1) {
-        previousPage = currentPage - 1;
-        pages = pages + '<a href="#" class="st-prev" data-hash="true" data-page="' + previousPage + '">&laquo; previous</a>';
-      }
-      if (currentPage < totalPages) {
-        nextPage = currentPage + 1;
-        pages = pages + '<a href="#" class="st-next" data-hash="true" data-page="' + nextPage + '">next &raquo;</a>';
-      }
-      pages += '</div>';
-      return pages;
-    };
 
   var normalize = function (str) {
       return $.trim(str).toLowerCase();
@@ -233,19 +235,50 @@
       $resultContainer.html('<p class="st-loading-message">loading...</p>');
     };
 
+  var defaultOnComplete = function(elem) {
+    window.location = elem.attr('href');
+  };
+
   var defaultPostRenderFunction = function(data) {
     var totalResultCount = 0;
     var $resultContainer = this.getContext().resultContainer;
+    var spellingSuggestion = null;
+
     if (data['info']) {
       $.each(data['info'], function(index, value) {
         totalResultCount += value['total_result_count'];
+        if ( value['spelling_suggestion'] ) {
+          spellingSuggestion = value['spelling_suggestion']['text'];
+        }
+
       });
     }
 
     if (totalResultCount === 0) {
       $resultContainer.html("<div id='st-no-results' class='st-no-results'>No results found.</div>");
     }
+
+    if (spellingSuggestion !== null) {
+      $resultContainer.append('<div class="st-spelling-suggestion">Did you mean <a href="#" data-hash="true" data-spelling-suggestion="' + spellingSuggestion + '">' + spellingSuggestion + '</a>?</div>');
+    }
   };
+
+
+  var defaultRenderPaginationForType = function (type, currentPage, totalPages) {
+      var pages = '<div class="st-page">',
+        previousPage, nextPage;
+      if (currentPage != 1) {
+        previousPage = currentPage - 1;
+        pages = pages + '<a href="#" class="st-prev" data-hash="true" data-page="' + previousPage + '">&laquo; previous</a>';
+      }
+      if (currentPage < totalPages) {
+        nextPage = currentPage + 1;
+        pages = pages + '<a href="#" class="st-next" data-hash="true" data-page="' + nextPage + '">next &raquo;</a>';
+      }
+      pages += '</div>';
+      return pages;
+    };
+
 
   $.fn.swiftypeSearch.defaults = {
     attachTo: undefined,
@@ -258,11 +291,15 @@
     sortField: undefined,
     sortDirection: undefined,
     fetchFields: undefined,
+    highlightFields: undefined,
     preRenderFunction: undefined,
     postRenderFunction: defaultPostRenderFunction,
     loadingFunction: defaultLoadingFunction,
     renderResultsFunction: defaultRenderResultsFunction,
     renderFunction: defaultRenderFunction,
-    perPage: 10
+    renderPaginationForType: defaultRenderPaginationForType,
+    onComplete: defaultOnComplete,
+    perPage: 10,
+    spelling: 'strict'
   };
 })(jQuery);
