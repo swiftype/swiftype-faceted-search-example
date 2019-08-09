@@ -203,7 +203,8 @@
         sortDirection: readSortDirection,
         facets: { products: ['category', 'tags'] },
         filters: readFilters,
-        postRenderFunction: bindControls
+        postRenderFunction: bindControls,
+        perPage: 12,
       });
 
       $('#st-search-input').swiftype({
