@@ -9,7 +9,7 @@ form input.st-search-input {
   font-size: 12px;
   padding: 5px 9px 5px 27px;
   height: 18px;
-  width: 200px;
+  width: 100%;
   color: #666;
   border: 1px solid #ccc;
   outline: none;
