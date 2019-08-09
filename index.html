@@ -93,6 +93,7 @@
       var $facetContainer = $('.st-dynamic-facets');
 
       var reloadResults = function() {
+        window.location.hash = window.location.hash.replace(/stp=[^&]*/i, 'stp=1'); // Reset to page 1
         $(window).hashchange();
       };
 
