@@ -209,6 +209,15 @@
       $('#st-search-input').swiftype({
         engineKey: 't2s8T3sUKx4jJoebs73L'
       });
+
+      // Start the demo out with products loaded on the page
+      $(window).on('load', function() {
+        var hasSearchTerm = window.location.hash.indexOf('stq=') >= 0;
+        if (!hasSearchTerm) {
+          window.location.hash = 'stq=product&stp=1';
+          reloadResults();
+        }
+      })
     </script>
   </body>
 </html>
