@@ -29,7 +29,8 @@ form label {
 }
 
 form input {
-  width: 162px !important; background: #fff;
+  width: 100% !important;
+  background: #fff;
   border: 1px solid #fff !important;
   border-radius: 4px;
   -webkit-border-radius: 4px;

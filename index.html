@@ -19,7 +19,7 @@
     <h1>Swiftype Faceted Search E-Commerce Store Example</h1>
     <form>
       <label>Search products</label>
-      <input type='text' id='st-search-input' class='st-search-input' />
+      <input type='text' id='st-search-input' class='st-search-input' placeholder="Search by typing (ex. 'product') and pressing enter" aria-label="Search by typing (ex. 'product') and pressing enter" />
     </form>
     <div id="menu">
       <h3>Sorted by</h3>
@@ -93,6 +93,7 @@
       var $facetContainer = $('.st-dynamic-facets');
 
       var reloadResults = function() {
+        window.location.hash = window.location.hash.replace(/stp=[^&]*/i, 'stp=1'); // Reset to page 1
         $(window).hashchange();
       };
 
@@ -203,12 +204,22 @@
         sortDirection: readSortDirection,
         facets: { products: ['category', 'tags'] },
         filters: readFilters,
-        postRenderFunction: bindControls
+        postRenderFunction: bindControls,
+        perPage: 12,
       });
 
       $('#st-search-input').swiftype({
         engineKey: 't2s8T3sUKx4jJoebs73L'
       });
+
+      // Start the demo out with products loaded on the page
+      $(window).on('load', function() {
+        var hasSearchTerm = window.location.hash.indexOf('stq=') >= 0;
+        if (!hasSearchTerm) {
+          window.location.hash = 'stq=product&stp=1';
+          reloadResults();
+        }
+      })
     </script>
   </body>
 </html>
