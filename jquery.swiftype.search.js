@@ -1,17 +1,17 @@
 (function ($) {
   var queryParser = function (a) {
-      var i, p, b = {};
-      if (a === "") {
-        return {};
+    var i, p, b = {};
+    if (a === "") {
+      return {};
+    }
+    for (i = 0; i < a.length; i += 1) {
+      p = a[i].split('=');
+      if (p.length === 2) {
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
       }
-      for (i = 0; i < a.length; i += 1) {
-        p = a[i].split('=');
-        if (p.length === 2) {
-          b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-        }
-      }
-      return b;
-    };
+    }
+    return b;
+  };
   $.queryParams = function () {
     return queryParser(window.location.search.substr(1).split('&'));
   };
@@ -22,10 +22,10 @@
 
   window.Swiftype = window.Swiftype || {};
   Swiftype.root_url = Swiftype.root_url || 'https://api.swiftype.com';
-  Swiftype.pingUrl = function(endpoint, callback) {
+  Swiftype.pingUrl = function (endpoint, callback) {
     var to = setTimeout(callback, 350);
     var img = new Image();
-    img.onload = img.onerror = function() {
+    img.onload = img.onerror = function () {
       clearTimeout(to);
       callback();
     };
@@ -55,7 +55,7 @@
         return function (e) {
           var $el = $(this);
           e.preventDefault();
-          Swiftype.pingSearchResultClick(config.engineKey, data['id'], function() {
+          Swiftype.pingSearchResultClick(config.engineKey, data['id'], function () {
             config.onComplete($el);
           });
         };
@@ -76,59 +76,59 @@
         $contentCache = $this.getContentCache();
 
       var setSearchHash = function (query, page) {
-          location.hash = "stq=" + encodeURIComponent(query) + "&stp=" + page;
-        };
+        location.hash = "stq=" + encodeURIComponent(query) + "&stp=" + page;
+      };
 
       var submitSearch = function (query, options) {
-          options = $.extend({
-            page: 1
-          }, options);
-          var params = {};
+        options = $.extend({
+          page: 1
+        }, options);
+        var params = {};
 
-          if (!$contentCache.length) {
-            $resultContainer.after("<div id='" + contentCacheId + "' style='display: none;'></div>");
-            $contentCache.html(initialContentOfResultContainer).hide();
-          }
-          config.loadingFunction(query, $resultContainer);
+        if (!$contentCache.length) {
+          $resultContainer.after("<div id='" + contentCacheId + "' style='display: none;'></div>");
+          $contentCache.html(initialContentOfResultContainer).hide();
+        }
+        config.loadingFunction(query, $resultContainer);
 
-          Swiftype.currentQuery = query;
-          params['q'] = query;
-          params['engine_key'] = config.engineKey;
-          params['page'] = options.page;
+        Swiftype.currentQuery = query;
+        params['q'] = query;
+        params['engine_key'] = config.engineKey;
+        params['page'] = options.page;
 
-          function handleFunctionParam(field) {
-            if (field !== undefined) {
-              var evald = field;
-              if (typeof evald === 'function') {
-                evald = evald.call();
-              }
-              return evald;
+        function handleFunctionParam(field) {
+          if (field !== undefined) {
+            var evald = field;
+            if (typeof evald === 'function') {
+              evald = evald.call();
             }
-            return undefined;
+            return evald;
           }
+          return undefined;
+        }
 
-          params['per_page'] = handleFunctionParam(config.perPage);
-          params['search_fields'] = handleFunctionParam(config.searchFields);
-          params['fetch_fields'] = handleFunctionParam(config.fetchFields);
-          params['facets'] = handleFunctionParam(config.facets);
-          params['filters'] = handleFunctionParam(config.filters);
-          params['document_types'] = handleFunctionParam(config.documentTypes);
-          params['functional_boosts'] = handleFunctionParam(config.functionalBoosts);
-          params['sort_field'] = handleFunctionParam(config.sortField);
-          params['sort_direction'] = handleFunctionParam(config.sortDirection);
-          params['spelling'] = handleFunctionParam(config.spelling);
-          params['highlight_fields'] = handleFunctionParam(config.highlightFields);
+        params['per_page'] = handleFunctionParam(config.perPage);
+        params['search_fields'] = handleFunctionParam(config.searchFields);
+        params['fetch_fields'] = handleFunctionParam(config.fetchFields);
+        params['facets'] = handleFunctionParam(config.facets);
+        params['filters'] = handleFunctionParam(config.filters);
+        params['document_types'] = handleFunctionParam(config.documentTypes);
+        params['functional_boosts'] = handleFunctionParam(config.functionalBoosts);
+        params['sort_field'] = handleFunctionParam(config.sortField);
+        params['sort_direction'] = handleFunctionParam(config.sortDirection);
+        params['spelling'] = handleFunctionParam(config.spelling);
+        params['highlight_fields'] = handleFunctionParam(config.highlightFields);
 
-          $.ajax({
-            dataType: "json",
-            url: Swiftype.root_url + "/api/v1/public/engines/search.json?callback=?",
-            data: params,
-            xhrFields: { withCredentials: true },
-            success: renderSearchResults
-          });
-        };
+        $.ajax({
+          dataType: "json",
+          url: Swiftype.root_url + "/api/v1/public/engines/search.json?callback=?",
+          data: params,
+          xhrFields: { withCredentials: true },
+          success: renderSearchResults
+        });
+      };
 
-      $(window).hashchange(function () {
+      function handleHashchange() {
         var params = $.hashParams();
         if (params.stq) {
           submitSearch(params.stq, {
@@ -141,7 +141,12 @@
             $contentCache.remove();
           }
         }
-      });
+      }
+
+      // Expose this globally for users to force a refresh of search results.
+      Swiftype.reloadResults = handleHashchange;
+
+      $(window).on("hashchange", handleHashchange);
 
       var $containingForm = $this.parents('form');
       if ($containingForm) {
@@ -184,14 +189,14 @@
         };
       };
 
-      $(window).hashchange(); // if the swiftype query hash is present onload (maybe the user is pressing the back button), submit a query onload
+      handleHashchange(); // if the swiftype query hash is present onload (maybe the user is pressing the back button), submit a query onload
     });
   };
 
   var renderPagination = function (ctx, resultInfo) {
     var maxPagesType, maxPages = -1,
       config = ctx.config;
-    $.each(resultInfo, function(documentType, typeInfo) {
+    $.each(resultInfo, function (documentType, typeInfo) {
       if (typeInfo.num_pages > maxPages) {
         maxPagesType = documentType;
         maxPages = typeInfo.num_pages;
@@ -205,8 +210,8 @@
 
 
   var normalize = function (str) {
-      return $.trim(str).toLowerCase();
-    };
+    return $.trim(str).toLowerCase();
+  };
 
   function htmlEscape(str) {
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -228,26 +233,26 @@
   };
 
   var defaultRenderFunction = function (document_type, item) {
-      return '<div class="st-result"><h3 class="title"><a href="' + item['url'] + '" class="st-search-result-link">' + htmlEscape(item['title']) + '</a></h3></div>';
-    };
+    return '<div class="st-result"><h3 class="title"><a href="' + item['url'] + '" class="st-search-result-link">' + htmlEscape(item['title']) + '</a></h3></div>';
+  };
 
-  var defaultLoadingFunction = function(query, $resultContainer) {
-      $resultContainer.html('<p class="st-loading-message">loading...</p>');
-    };
+  var defaultLoadingFunction = function (query, $resultContainer) {
+    $resultContainer.html('<p class="st-loading-message">loading...</p>');
+  };
 
-  var defaultOnComplete = function(elem) {
+  var defaultOnComplete = function (elem) {
     window.location = elem.attr('href');
   };
 
-  var defaultPostRenderFunction = function(data) {
+  var defaultPostRenderFunction = function (data) {
     var totalResultCount = 0;
     var $resultContainer = this.getContext().resultContainer;
     var spellingSuggestion = null;
 
     if (data['info']) {
-      $.each(data['info'], function(index, value) {
+      $.each(data['info'], function (index, value) {
         totalResultCount += value['total_result_count'];
-        if ( value['spelling_suggestion'] ) {
+        if (value['spelling_suggestion']) {
           spellingSuggestion = value['spelling_suggestion']['text'];
         }
 
@@ -265,19 +270,19 @@
 
 
   var defaultRenderPaginationForType = function (type, currentPage, totalPages) {
-      var pages = '<div class="st-page">',
-        previousPage, nextPage;
-      if (currentPage != 1) {
-        previousPage = currentPage - 1;
-        pages = pages + '<a href="#" class="st-prev" data-hash="true" data-page="' + previousPage + '">&laquo; previous</a>';
-      }
-      if (currentPage < totalPages) {
-        nextPage = currentPage + 1;
-        pages = pages + '<a href="#" class="st-next" data-hash="true" data-page="' + nextPage + '">next &raquo;</a>';
-      }
-      pages += '</div>';
-      return pages;
-    };
+    var pages = '<div class="st-page">',
+      previousPage, nextPage;
+    if (currentPage != 1) {
+      previousPage = currentPage - 1;
+      pages = pages + '<a href="#" class="st-prev" data-hash="true" data-page="' + previousPage + '">&laquo; previous</a>';
+    }
+    if (currentPage < totalPages) {
+      nextPage = currentPage + 1;
+      pages = pages + '<a href="#" class="st-next" data-hash="true" data-page="' + nextPage + '">next &raquo;</a>';
+    }
+    pages += '</div>';
+    return pages;
+  };
 
 
   $.fn.swiftypeSearch.defaults = {
