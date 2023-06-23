@@ -1,17 +1,17 @@
 (function ($) {
   var queryParser = function (a) {
-      var i, p, b = {};
-      if (a === "") {
-        return {};
+    var i, p, b = {};
+    if (a === "") {
+      return {};
+    }
+    for (i = 0; i < a.length; i += 1) {
+      p = a[i].split('=');
+      if (p.length === 2) {
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
       }
-      for (i = 0; i < a.length; i += 1) {
-        p = a[i].split('=');
-        if (p.length === 2) {
-          b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-        }
-      }
-      return b;
-    };
+    }
+    return b;
+  };
   $.queryParams = function () {
     return queryParser(window.location.search.substr(1).split('&'));
   };
@@ -24,17 +24,17 @@
 
   window.Swiftype = window.Swiftype || {};
   Swiftype.root_url = Swiftype.root_url || 'https://api.swiftype.com';
-  Swiftype.pingUrl = function(endpoint, callback) {
+  Swiftype.pingUrl = function (endpoint, callback) {
     var to = setTimeout(callback, 350);
     var img = new Image();
-    img.onload = img.onerror = function() {
+    img.onload = img.onerror = function () {
       clearTimeout(to);
       callback();
     };
     img.src = endpoint;
     return false;
   };
-  Swiftype.pingAutoSelection = function(engineKey, docId, value, callback) {
+  Swiftype.pingAutoSelection = function (engineKey, docId, value, callback) {
     var params = {
       t: new Date().getTime(),
       engine_key: engineKey,
@@ -44,7 +44,7 @@
     var url = Swiftype.root_url + '/api/v1/public/analytics/pas?' + $.param(params);
     Swiftype.pingUrl(url, callback);
   };
-  Swiftype.findSelectedSection = function() {
+  Swiftype.findSelectedSection = function () {
     var sectionText = $.hashParams().sts;
     if (!sectionText) { return; }
 
@@ -56,7 +56,7 @@
 
     sectionText = normalizeText(sectionText);
 
-    $('h1, h2, h3, h4, h5, h6').each(function(idx) {
+    $('h1, h2, h3, h4, h5, h6').each(function (idx) {
       $this = $(this);
       if (normalizeText($this.text()).indexOf(sectionText) >= 0) {
         this.scrollIntoView(true);
@@ -82,11 +82,11 @@
       $this.cache = new LRUCache(10);
       $this.emptyQueries = [];
 
-      $this.isEmpty = function(query) {
+      $this.isEmpty = function (query) {
         return $.inArray(normalize(query), this.emptyQueries) >= 0
       };
 
-      $this.addEmpty = function(query) {
+      $this.addEmpty = function (query) {
         $this.emptyQueries.unshift(normalize(query));
       };
 
@@ -98,44 +98,53 @@
 
       $this.data('swiftype-list', $list);
 
-      $this.abortCurrent = function() {
+      $this.abortCurrent = function () {
         if ($this.currentRequest) {
           $this.currentRequest.abort();
         }
       };
 
-      $this.showList = function() {
+      $this.showList = function () {
         if (handleFunctionParam(config.disableAutocomplete) === false) {
           $listContainer.show();
         }
       };
 
-
-      $this.hideList = function(sync) {
+      $this.hideList = function (sync) {
         if (sync) {
           $listContainer.hide();
         } else {
-          setTimeout(function() { $listContainer.hide(); }, 10);
+          setTimeout(function () { $listContainer.hide(); }, 10);
         }
       };
 
-      $this.focused = function() {
+      $this.showNoResults = function () {
+        $list.empty();
+        if (config.noResultsMessage === undefined) {
+          $this.hideList();
+        } else {
+          $list.append($('<li />', { 'class': config.noResultsClass }).text(config.noResultsMessage));
+          $this.showList();
+        }
+      };
+
+      $this.focused = function () {
         return $this.is(':focus');
       };
 
-      $this.submitting = function() {
+      $this.submitting = function () {
         $this.submitted = true;
       };
 
-      $this.listResults = function() {
-        return $(config.resultListSelector, $list);
+      $this.listResults = function () {
+        return $(config.resultListSelector, $list).filter(':not(.' + config.noResultsClass + ')');
       };
 
-      $this.activeResult = function() {
+      $this.activeResult = function () {
         return $this.listResults().filter('.' + config.activeItemClass).first();
       };
 
-      $this.prevResult = function() {
+      $this.prevResult = function () {
         var list = $this.listResults(),
           currentIdx = list.index($this.activeResult()),
           nextIdx = currentIdx - 1,
@@ -146,7 +155,7 @@
         }
       };
 
-      $this.nextResult = function() {
+      $this.nextResult = function () {
         var list = $this.listResults(),
           currentIdx = list.index($this.activeResult()),
           nextIdx = currentIdx + 1,
@@ -157,17 +166,17 @@
         }
       };
 
-      $this.selectedCallback = function(data) {
-        return function() {
+      $this.selectedCallback = function (data) {
+        return function () {
           var value = $this.val(),
-            callback = function() {
+            callback = function () {
               config.onComplete(data, value);
             };
           Swiftype.pingAutoSelection(config.engineKey, data['id'], value, callback);
         };
       };
 
-      $this.registerResult = function($element, data) {
+      $this.registerResult = function ($element, data) {
         $element.data('swiftype-item', data);
         $element.click($this.selectedCallback(data)).mouseover(function () {
           $this.listResults().removeClass(config.activeItemClass);
@@ -175,7 +184,7 @@
         });
       };
 
-      $this.getContext = function() {
+      $this.getContext = function () {
         return {
           config: config,
           list: $list,
@@ -206,7 +215,7 @@
         }
       });
 
-      $this.styleDropdown = function() {
+      $this.styleDropdown = function () {
         $listContainer.css(config.dropdownStylesFunction($this));
       };
 
@@ -219,39 +228,39 @@
         // enter = 13; up = 38; down = 40; esc = 27
         var $active = $this.activeResult();
         switch (event.which) {
-        case 13:
-          if (($active.length !== 0) && ($list.is(':visible'))) {
+          case 13:
+            if (($active.length !== 0) && ($list.is(':visible'))) {
+              event.preventDefault();
+              $this.selectedCallback($active.data('swiftype-item'))();
+            } else if ($this.currentRequest) {
+              $this.submitting();
+            }
+            $this.hideList();
+            suppressKey = true;
+            break;
+          case 38:
             event.preventDefault();
-            $this.selectedCallback($active.data('swiftype-item'))();
-          } else if ($this.currentRequest) {
-            $this.submitting();
-          }
-          $this.hideList();
-          suppressKey = true;
-          break;
-        case 38:
-          event.preventDefault();
-          if ($active.length === 0) {
-            $this.listResults().last().addClass(config.activeItemClass);
-          } else {
-            $this.prevResult();
-          }
-          break;
-        case 40:
-          event.preventDefault();
-          if ($active.length === 0) {
-            $this.listResults().first().addClass(config.activeItemClass);
-          } else if ($active != $this.listResults().last()) {
-            $this.nextResult();
-          }
-          break;
-        case 27:
-          $this.hideList();
-          suppressKey = true;
-          break;
-        default:
-          $this.submitted = false;
-          break;
+            if ($active.length === 0) {
+              $this.listResults().last().addClass(config.activeItemClass);
+            } else {
+              $this.prevResult();
+            }
+            break;
+          case 40:
+            event.preventDefault();
+            if ($active.length === 0) {
+              $this.listResults().first().addClass(config.activeItemClass);
+            } else if ($active != $this.listResults().last()) {
+              $this.nextResult();
+            }
+            break;
+          case 27:
+            $this.hideList();
+            suppressKey = true;
+            break;
+          default:
+            $this.submitted = false;
+            break;
         }
       });
 
@@ -283,15 +292,15 @@
         }
       });
       $this.focus(function () {
-        setTimeout(function() { $this.select() }, 10);
-        if ($this.listResults().filter(':not(.' + config.noResultsClass + ')').length > 0) {
+        setTimeout(function () { $this.select() }, 10);
+        if ($this.listResults().length > 0) {
           $this.showList();
         }
       });
     });
   };
 
-  var normalize = function(str) {
+  var normalize = function (str) {
     return $.trim(str).toLowerCase();
   };
 
@@ -311,7 +320,7 @@
     params['sort_field'] = handleFunctionParam(config.sortField);
     params['sort_direction'] = handleFunctionParam(config.sortDirection);
     params['per_page'] = config.resultLimit;
-    params['highlight_fields'] = handleFunctionParam(config.highlightFields);
+    params['highlight_fields'] = config.highlightFields;
 
     var endpoint = Swiftype.root_url + '/api/v1/public/engines/suggest.json';
     $this.currentRequest = $.ajax({
@@ -319,25 +328,23 @@
       dataType: 'jsonp',
       url: endpoint,
       data: params
-    }).done(function(data) {
+    }).done(function (data) {
       var norm = normalize(term);
       if (data.record_count > 0) {
         $this.cache.put(norm, data.records);
       } else {
         $this.addEmpty(norm);
-        $this.data('swiftype-list').empty();
-        $this.hideList();
+        $this.showNoResults();
         return;
       }
       processData($this, data.records, term);
     });
   };
 
-  var getResults = function($this, term) {
+  var getResults = function ($this, term) {
     var norm = normalize(term);
     if ($this.isEmpty(norm)) {
-      $this.data('swiftype-list').empty();
-      $this.hideList();
+      $this.showNoResults();
       return;
     }
     var cached = $this.cache.get(norm);
@@ -350,60 +357,60 @@
 
   // private helpers
   var processInput = function ($this) {
-      var term = $this.val();
-      if (term === $this.lastValue) {
-        return;
-      }
-      $this.lastValue = term;
-      if ($.trim(term) === '') {
-        $this.data('swiftype-list').empty()
-        $this.hideList();
-        return;
-      }
-      if (typeof $this.data('swiftype-config-autocomplete').engineKey !== 'undefined') {
-        getResults($this, term);
-      }
-    };
+    var term = $this.val();
+    if (term === $this.lastValue) {
+      return;
+    }
+    $this.lastValue = term;
+    if ($.trim(term) === '') {
+      $this.data('swiftype-list').empty()
+      $this.hideList();
+      return;
+    }
+    if (typeof $this.data('swiftype-config-autocomplete').engineKey !== 'undefined') {
+      getResults($this, term);
+    }
+  };
 
   var processData = function ($this, data, term) {
-      var $list = $this.data('swiftype-list'),
-        config = $this.data('swiftype-config-autocomplete');
+    var $list = $this.data('swiftype-list'),
+      config = $this.data('swiftype-config-autocomplete');
 
-      $list.empty();
-      $this.hideList(true);
+    $list.empty();
+    $this.hideList(true);
 
-      config.resultRenderFunction($this.getContext(), data);
+    config.resultRenderFunction($this.getContext(), data, term);
 
-      var totalItems = $this.listResults().length;
-      if ((totalItems > 0 && $this.focused()) || (config.noResultsMessage !== undefined)) {
-        if ($this.submitted) {
-          $this.submitted = false;
-        } else {
-          $this.showList();
-        }
+    var totalItems = $this.listResults().length;
+    if ((totalItems > 0 && $this.focused()) || (config.noResultsMessage !== undefined)) {
+      if ($this.submitted) {
+        $this.submitted = false;
+      } else {
+        $this.showList();
       }
-    };
+    }
+  };
 
-  var defaultResultRenderFunction = function(ctx, results) {
+  var defaultResultRenderFunction = function (ctx, results) {
     var $list = ctx.list,
       config = ctx.config;
 
-    $.each(results, function(document_type, items) {
-      $.each(items, function(idx, item) {
-        ctx.registerResult($('<li>' + config.renderFunction(document_type, item) + '</li>').appendTo($list), item);
+    $.each(results, function (document_type, items) {
+      $.each(items, function (idx, item) {
+        ctx.registerResult($('<li>' + config.renderFunction(document_type, item, idx) + '</li>').appendTo($list), item);
       });
     });
   };
 
-  var defaultRenderFunction = function(document_type, item) {
+  var defaultRenderFunction = function (document_type, item, idx) {
     return '<p class="title">' + Swiftype.htmlEscape(item['title']) + '</p>';
   };
 
-  var defaultOnComplete = function(item, prefix) {
+  var defaultOnComplete = function (item, prefix) {
     window.location = item['url'];
   };
 
-  var defaultDropdownStylesFunction = function($this) {
+  var defaultDropdownStylesFunction = function ($this) {
     var config = $this.data('swiftype-config-autocomplete');
     var $attachEl = config.attachTo ? $(config.attachTo) : $this;
     var offset = $attachEl.offset();
@@ -419,7 +426,7 @@
     return styles;
   };
 
-  var handleFunctionParam = function(field) {
+  var handleFunctionParam = function (field) {
     if (field !== undefined) {
       var evald = field;
       if (typeof evald === 'function') {
@@ -430,13 +437,13 @@
     return undefined;
   };
 
-	// simple client-side LRU Cache, based on https://github.com/rsms/js-lru
+  // simple client-side LRU Cache, based on https://github.com/rsms/js-lru
 
-	function LRUCache(limit) {
-	  this.size = 0;
-	  this.limit = limit;
-	  this._keymap = {};
-	}
+  function LRUCache(limit) {
+    this.size = 0;
+    this.limit = limit;
+    this._keymap = {};
+  }
 
   LRUCache.prototype.put = function (key, value) {
     var entry = {
